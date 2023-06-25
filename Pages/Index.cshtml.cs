@@ -46,7 +46,7 @@ public class IndexModel : PageModel
 
     public async Task OnPost()
     {
-        var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://testapi.eucaptcha.eu/api/https://api.eucaptcha.eu/api/validateCaptcha")
+        var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://api.eucaptcha.eu/api/validateCaptcha")
         {
             // Headers =
             // {
