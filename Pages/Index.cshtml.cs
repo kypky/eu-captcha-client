@@ -44,6 +44,29 @@ public class IndexModel : PageModel
         }
     }
 
+    public async Task OnPost()
+    {
+        var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://testapi.eucaptcha.eu/api/https://api.eucaptcha.eu/api/validateCaptcha")
+        {
+            // Headers =
+            // {
+            //     { HeaderNames.Accept, "application/vnd.github.v3+json" },
+            //     { HeaderNames.UserAgent, "HttpRequestsSample" }
+            // }
+        };
+
+        var httpClient = _httpClientFactory.CreateClient();
+        var httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
+
+        if (httpResponseMessage.IsSuccessStatusCode)
+        {
+            using var contentStream =
+                await httpResponseMessage.Content.ReadAsStreamAsync();
+            
+            Captcha = await JsonSerializer.DeserializeAsync<CaptchaResponse>(contentStream);
+        }
+    }
+
     // public void OnGet()
     // {
 
