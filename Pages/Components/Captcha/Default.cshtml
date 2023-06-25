@@ -1,0 +1,42 @@
+ 
+@using dsf_eu_captcha.Models
+@model CaptchaResponse
+
+@if (@Model is null)
+{
+	<div class="alert alert-danger" role="alert">
+		Unable to load Captcha. Please try again later.
+	</div>
+}
+else
+{
+	<h3>Captcha Response</h3>
+	@* <ul class="list-group">		
+        <li class="list-group-item">@Model.captchaId</li>
+	</ul> *@
+    <p>
+        Captcha Question: @Model.captchaQuestion
+    </p>
+    <p>
+        <img src="data:image/png;base64,@Model.captchaImg" alt="Captcha Image" id="captchaImg" captchaId="@Model.captchaId">        
+        <br/>
+        <br/>
+        <audio controls autostart="1" src="@Model.audioCaptcha" id="audioCaptcha" onplay="onPlayAudio()"></audio>
+    </p>
+    <hr>
+    <div class="row">
+        <div class="col-md-1">
+
+        </div>
+        <div class="col-md-4">
+            @* <label title="Captcha input for solution" for="captchaAnswer">Captcha input for solution</label> *@
+            <input title="Captcha input for solution" type="text" class="form-control" id="captchaAnswer" placeholder="Captcha Text">
+        </div>
+        <div class="col-md-4">
+            @* <label title="Submit the Captcha" for="captchaSubmit">Submit tha Captcha</label> *@
+            <button title="Submit the Captcha" class="btn btn-primary btn-lg" id="captchaSubmit">Submit</button>
+        </div>
+    </div>
+    <br>
+
+}
