@@ -5,37 +5,50 @@
 @if (@Model is null)
 {
 	<div class="alert alert-danger" role="alert">
-		Unable to load Captcha. Please try again later.
+		Invalid Captcha. Please try again: <a href="/">Home</a>
 	</div>
 }
 else
 {
-	<h3>Captcha Response</h3>
+	<h3>Captcha</h3>
 	@* <ul class="list-group">		
         <li class="list-group-item">@Model.captchaId</li>
 	</ul> *@
-    <p>
+    @* <p>
         Captcha Question: @Model.captchaQuestion
-    </p>
+        <br/>
+        jwt string: @Model.jwtString
+    </p> *@
+
     <p>
-        <img src="data:image/png;base64,@Model.captchaImg" alt="Captcha Image" id="captchaImg" captchaId="@Model.captchaId">        
-        <br/>
-        <br/>
-        <audio controls autostart="1" src="@Model.audioCaptcha" id="audioCaptcha" onplay="onPlayAudio()"></audio>
+        
     </p>
+    <div class="row">
+        <div class="col-md-8">
+            <img src="data:image/png;base64,@Model.captchaImg" alt="Captcha Image" id="captchaImg" captchaId="@Model.captchaId">        
+            <br/>
+            <br/>
+            <a href="/">Reload Captcha</a>
+            <br/>
+            <br/>
+            <audio controls autostart="1" src="data:audio/mp3;base64,@Model.audioCaptcha" id="audioCaptcha" controls="controls" autobuffer="autobuffer"></audio>
+        </div>
+    </div>
     <hr>
     <div class="row">
-        <div class="col-md-1">
-
-        </div>
-        <div class="col-md-4">
-            @* <label title="Captcha input for solution" for="captchaAnswer">Captcha input for solution</label> *@
-            <input title="Captcha input for solution" type="text" class="form-control" id="captchaAnswer" placeholder="Captcha Text">
-        </div>
-        <div class="col-md-4">
-            @* <label title="Submit the Captcha" for="captchaSubmit">Submit tha Captcha</label> *@
-            <button title="Submit the Captcha" class="btn btn-primary btn-lg" id="captchaSubmit">Submit</button>
-        </div>
+        <form method="post">
+            <input type="hidden" id="jwt" name="jwt" value="@Model.jwtString">
+            <input type="hidden" id="captchaId" name="captchaId" value="@Model.captchaId">
+            <div class="col-md-4">
+                @* <label title="Captcha input for solution" for="captchaAnswer">Captcha input for solution</label> *@
+                <input title="Captcha input for solution" type="text" class="form-control" id="captchaAnswer" name="captchaAnswer" placeholder="Captcha Text">
+            </div>
+            <br/>
+            <div class="col-md-4">
+                @* <label title="Submit the Captcha" for="captchaSubmit">Submit tha Captcha</label> *@
+                <button title="Submit the Captcha" class="btn btn-primary btn-lg" id="captchaSubmit">Submit</button>
+            </div>
+        </form>        
     </div>
     <br>
 

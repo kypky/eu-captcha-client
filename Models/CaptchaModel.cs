@@ -9,4 +9,10 @@ public class CaptchaResponse
         public int max { get; set; }
         public int min { get; set; }
         public string? audioCaptcha { get; set; }
+        public string? jwtString { get; set; }
+    }
+
+   public class CaptchaValidateResponse
+    {
+        public string? responseCaptcha { get; set; }
     }
