@@ -3,6 +3,7 @@ using dsf_eu_captcha.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Net.Http.Headers;
+using Microsoft.AspNetCore.Http;  
 
 namespace dsf_eu_captcha.Pages;
 
@@ -48,6 +49,8 @@ public class IndexModel : PageModel
                 
                 captchaResponse = await JsonSerializer.DeserializeAsync<CaptchaResponse>(contentStream);
 
+                //var captchaSession = HttpContext.Session.GetString("CAPTCHA");
+
                 //Get the x-jwtString value to be used for the validation request
                 if (httpResponseMessage.Headers.TryGetValues("x-jwtString", out IEnumerable<string>? values)) 
                 {
@@ -55,14 +58,21 @@ public class IndexModel : PageModel
                     if (captchaResponse != null)
                     {
                         captchaResponse.jwtString = values.First();
+                        //captchaSession = new CaptchaResponse();
+                        HttpContext.Session.SetString("CaptchaId", captchaResponse.captchaId);
+                        HttpContext.Session.SetString("JwtString", captchaResponse.jwtString);                    
                     }                    
                 }                              
             }
         }        
     }
 
-    public async Task<IActionResult> OnPost(string captchaAnswer, string jwt, string captchaId)
+    //public async Task<IActionResult> OnPost(string captchaAnswer, string jwt, string captchaId)
+    public async Task<IActionResult> OnPost(string captchaAnswer)
     {
+        var captchaId = HttpContext.Session.GetString("CaptchaId");
+        var jwt = HttpContext.Session.GetString("JwtString");
+        
         if (string.IsNullOrEmpty(captchaAnswer))
         {
             throw new ArgumentException($"'{nameof(captchaAnswer)}' cannot be null or empty.", nameof(captchaAnswer));

@@ -37,8 +37,8 @@ else
     <hr>
     <div class="row">
         <form method="post">
-            <input type="hidden" id="jwt" name="jwt" value="@Model.jwtString">
-            <input type="hidden" id="captchaId" name="captchaId" value="@Model.captchaId">
+            @* <input type="hidden" id="jwt" name="jwt" value="@Model.jwtString">
+            <input type="hidden" id="captchaId" name="captchaId" value="@Model.captchaId"> *@
             <div class="col-md-4">
                 @* <label title="Captcha input for solution" for="captchaAnswer">Captcha input for solution</label> *@
                 <input title="Captcha input for solution" type="text" class="form-control" id="captchaAnswer" name="captchaAnswer" placeholder="Captcha Text">
