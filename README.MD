@@ -10,8 +10,8 @@ More information can be found at <https://code.europa.eu/eu-captcha/EU-CAPTCHA>
 
 ## Features
 This web client is a demo implementation that contains the following:
-* Implementation of CAPTCHA mechanism
-* Alphanumeric CAPTCHA with audio transcription
+* Implementation of CAPTCHA mechanism: Alphanumeric CAPTCHA with audio transcription
+* No javascript dependencies (server-side implementation)
 
 ## Objective:  Integrate with a CAPTCHA service that is:
 * available as a component and operable as a service;
