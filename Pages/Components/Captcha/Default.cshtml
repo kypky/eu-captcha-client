@@ -10,22 +10,9 @@
 }
 else
 {
-	<h3>Captcha</h3>
-	@* <ul class="list-group">		
-        <li class="list-group-item">@Model.captchaId</li>
-	</ul> *@
-    @* <p>
-        Captcha Question: @Model.captchaQuestion
-        <br/>
-        jwt string: @Model.jwtString
-    </p> *@
-
-    <p>
-        
-    </p>
     <div class="row">
         <div class="col-md-8">
-            <img src="data:image/png;base64,@Model.captchaImg" alt="Captcha Image" id="captchaImg" captchaId="@Model.captchaId">        
+            <img src="data:image/png;base64,@Model.captchaImg" width="300" alt="Captcha Image" id="captchaImg" captchaId="@Model.captchaId">        
             <br/>
             <br/>
             <a href="/">Reload Captcha</a>
@@ -37,15 +24,11 @@ else
     <hr>
     <div class="row">
         <form method="post">
-            @* <input type="hidden" id="jwt" name="jwt" value="@Model.jwtString">
-            <input type="hidden" id="captchaId" name="captchaId" value="@Model.captchaId"> *@
-            <div class="col-md-4">
-                @* <label title="Captcha input for solution" for="captchaAnswer">Captcha input for solution</label> *@
+            <div class="col-md-4">                
                 <input title="Captcha input for solution" type="text" class="form-control" id="captchaAnswer" name="captchaAnswer" placeholder="Captcha Text">
             </div>
             <br/>
-            <div class="col-md-4">
-                @* <label title="Submit the Captcha" for="captchaSubmit">Submit tha Captcha</label> *@
+            <div class="col-md-4">                
                 <button title="Submit the Captcha" class="btn btn-primary btn-lg" id="captchaSubmit">Submit</button>
             </div>
         </form>        

@@ -10,17 +10,18 @@ namespace dsf_eu_captcha.Pages;
 //[BindProperties]
 public class IndexModel : PageModel
 {
-    //private readonly ILogger<IndexModel>? _logger;
-
-    // public IndexModel(ILogger<IndexModel> logger)
-    // {
-    //     _logger = logger;
-    // }
-
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IConfiguration _configuration;
+    private readonly ILogger<IndexModel>? _logger;
 
-    public IndexModel(IHttpClientFactory httpClientFactory) =>
+    public IndexModel(IConfiguration configuration, 
+                        ILogger<IndexModel> logger, 
+                        IHttpClientFactory httpClientFactory)
+    {
+        _configuration = configuration;
+        _logger = logger;
         _httpClientFactory = httpClientFactory;
+    }
 
     public CaptchaResponse? captchaResponse { get; set; }
     
@@ -28,13 +29,14 @@ public class IndexModel : PageModel
 
     public async Task OnGet()
     {
-        var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://testapi.eucaptcha.eu/api/captchaImg?captchaLength=5")
+        var requestUri = _configuration["Captcha:RequestUri"];
+        var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, requestUri)
         {
-            // Headers =
-            // {
-            //     { HeaderNames.Accept, "application/vnd.github.v3+json" },
-            //     { HeaderNames.UserAgent, "HttpRequestsSample" }
-            // }
+            Headers =
+            {
+                { HeaderNames.Accept, "*/*" },
+                { HeaderNames.UserAgent, "PostmanRuntime/7.32.3" }
+            }
         };
 
         var httpClient = _httpClientFactory.CreateClient();
@@ -88,19 +90,21 @@ public class IndexModel : PageModel
             throw new ArgumentException($"'{nameof(captchaId)}' cannot be null or empty.", nameof(captchaId));
         }
 
+        var validationUri = _configuration["Captcha:ValidationUri"];
+        var useAudio = _configuration["Captcha:UseAudio"];
         var dict = new Dictionary<string, string>();
+
         dict.Add("captchaAnswer", captchaAnswer);
-        dict.Add("useAudio", "true");
+        dict.Add("useAudio", useAudio!);
         dict.Add("x-jwtString", jwt);
 
-        //var req = new HttpRequestMessage(HttpMethod.Post, url) { Content = new FormUrlEncodedContent(dict) };
-        var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "https://testapi.eucaptcha.eu/api/validateCaptcha/" + captchaId)
+        
+        var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, validationUri + "/" + captchaId)
         {
             Headers =
             {
-                //{ HeaderNames.Accept, "application/vnd.github.v3+json" },
-                //{ HeaderNames.UserAgent, "HttpRequestsSample" }
-                //{ "x-jwtString", xjwtString}
+                { HeaderNames.Accept, "*/*" },
+                { HeaderNames.UserAgent, "PostmanRuntime/7.32.3" }
             },
 
             Content = new FormUrlEncodedContent(dict)
@@ -128,9 +132,4 @@ public class IndexModel : PageModel
 
         return Page();
     }
-
-    // public void OnGet()
-    // {
-
-    // }
 }

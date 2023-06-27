@@ -10,15 +10,11 @@ builder.Services.AddSession();
 builder.Services.AddHttpClient();
 builder.Services.AddRazorPages();
 
-builder.Services.AddHttpClient("EUCaptcha", httpClient =>
-{
-    //httpClient.BaseAddress = new Uri("https://testapi.eucaptcha.eu/api/captchaImg");
-
-    // using Microsoft.Net.Http.Headers;
-    // The GitHub API requires two headers.
-    //httpClient.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/vnd.github.v3+json");
-    //httpClient.DefaultRequestHeaders.Add(HeaderNames.UserAgent, "HttpRequestsSample");
-});
+// builder.Services.AddHttpClient("EUCaptcha", httpClient =>
+// {       
+//     //httpClient.DefaultRequestHeaders.Add(HeaderNames.Accept, "*/*");
+//     //httpClient.DefaultRequestHeaders.Add(HeaderNames.UserAgent, "HttpRequestsSample");
+// });
 
 var app = builder.Build();
 
