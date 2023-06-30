@@ -22,7 +22,7 @@ public class IndexModel : PageModel
         _httpClientFactory = httpClientFactory;
     }
 
-    public CaptchaResponse? captchaResponse { get; set; }
+    public CaptchaResponse? Captcha { get; set; }
     
     public string xjwtString = string.Empty; 
 
@@ -48,7 +48,7 @@ public class IndexModel : PageModel
                 using var contentStream =
                     await httpResponseMessage.Content.ReadAsStreamAsync();
                 
-                captchaResponse = await JsonSerializer.DeserializeAsync<CaptchaResponse>(contentStream);
+                Captcha = await JsonSerializer.DeserializeAsync<CaptchaResponse>(contentStream);
 
                 //var captchaSession = HttpContext.Session.GetString("CAPTCHA");
 
@@ -56,12 +56,12 @@ public class IndexModel : PageModel
                 if (httpResponseMessage.Headers.TryGetValues("x-jwtString", out IEnumerable<string>? values)) 
                 {
                     //xjwtString = values.First();
-                    if (captchaResponse != null)
+                    if (Captcha != null)
                     {
-                        captchaResponse.jwtString = values.First();
+                        Captcha.jwtString = values.First();
                         //captchaSession = new CaptchaResponse();
-                        HttpContext.Session.SetString("CaptchaId", captchaResponse.captchaId);
-                        HttpContext.Session.SetString("JwtString", captchaResponse.jwtString);                    
+                        HttpContext.Session.SetString("CaptchaId", Captcha.captchaId);
+                        HttpContext.Session.SetString("JwtString", Captcha.jwtString);                    
                     }                    
                 }                              
             }
