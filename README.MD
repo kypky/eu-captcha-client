@@ -1,5 +1,5 @@
 # DSF EU CAPTCHA Integration Demo
-This is a .NET 6 Razor Pages demo application to demonstrate how to integrate (Server-Side) with the EU CAPTCHA managed API.
+This is a .NET Razor Pages demo application to demonstrate how to integrate (Server-Side) with the EU CAPTCHA managed API.
 
 ## What is EU CAPTCHA?
 EU CAPTCHA embodies the results of ISA² Action 2018.08 EU-Captcha . A CAPTCHA is a test intended to distinguish human from machine input. The objective of this action is to offer to the Member States a CAPTCHA solution that is maintained, secure, user friendly and multilingual. It will be delivered as a component that can be operated as a service. Next to this managed service, there is also an open source project available, which you can deploy yourself.  
@@ -11,6 +11,7 @@ More information can be found at <https://code.europa.eu/eu-captcha/EU-CAPTCHA>
 ## Features
 This web client is a demo implementation that contains the following:
 * Implementation of CAPTCHA mechanism: Alphanumeric CAPTCHA with audio transcription
+  - Get
 * No javascript dependencies (server-side implementation)
 
 ## Objective:  Integrate with a CAPTCHA service that is:
@@ -37,7 +38,7 @@ CAPTCHA Managed Service Implementation Manual is for the reference of developers
 
 ### Installation
 ```
-git clone https://github.com/kypky/eu-captcha-client.git
+git clone https://github.com/govcy/eu-captcha-client.git
 cd eu-captcha-client
 dotnet build
 dotnet run
@@ -65,7 +66,7 @@ Production Environment:
 ```
 
 ## Tech
-* .NET6 C#
+* .NET 7 C#
 * Razor Pages
 
 ## NuGet Packages
