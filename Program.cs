@@ -1,7 +1,8 @@
 using Microsoft.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 // Add services to the container.
 //KK
 builder.Services.AddHttpContextAccessor();

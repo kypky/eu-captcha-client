@@ -67,8 +67,7 @@ public class IndexModel : PageModel
             }
         }        
     }
-
-    //public async Task<IActionResult> OnPost(string captchaAnswer, string jwt, string captchaId)
+    
     public async Task<IActionResult> OnPost(string captchaAnswer)
     {
         try 
@@ -119,8 +118,7 @@ public class IndexModel : PageModel
 
             if (httpResponseMessage.IsSuccessStatusCode)
             {
-                using var contentStream =
-                    await httpResponseMessage.Content.ReadAsStreamAsync();
+                using var contentStream = await httpResponseMessage.Content.ReadAsStreamAsync();
                 
                 var res = await JsonSerializer.DeserializeAsync<CaptchaValidateResponse>(contentStream);
 
