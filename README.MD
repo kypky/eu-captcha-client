@@ -1,4 +1,4 @@
-# DSF EU CAPTCHA Integration Demo
+# DSF EU-CAPTCHA Integration Demo
 This is a .NET Razor Pages demo application to demonstrate how to integrate (Server-Side) with the EU CAPTCHA managed API.
 
 ## What is EU CAPTCHA?
@@ -24,7 +24,7 @@ This web client is a demo implementation that contains the following:
 * maintained by the European Commission with continuous support for subsequent versions.
 
 ## Integrations
-* EU CAPTCHA Managed Service
+* EU-CAPTCHA Managed Service
 
 To integrate with an instance of EU CAPTCHA Managed Service these environments are available:  
 ```
@@ -42,6 +42,11 @@ git clone https://github.com/govcy/eu-captcha-client.git
 cd eu-captcha-client
 dotnet build .\dsf-eu-captcha.csproj
 dotnet run .\dsf-eu-captcha.csproj
+```
+
+### Deployment (Publish)
+```
+dotnet publish --configuration Release .\dsf-eu-captcha.csproj
 ```
 
 ### Configuration (appsettings.json)
@@ -62,6 +67,14 @@ Production Environment:
     "RequestUri":"https://api.eucaptcha.eu/api/captchaImg?captchaLength=5",
     "ValidationUri": "https://api.eucaptcha.eu/api/validateCaptcha",
     "UseAudio":"true"
+  }
+```
+
+Proxy Support:
+```
+"Proxy": {
+    "ProxyEnabled": false,
+    "ProxyAddress": "http://proxy.intranet.gov.cy:80"
   }
 ```
 

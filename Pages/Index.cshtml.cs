@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Net;
+using System.Text.Json;
 using dsf_eu_captcha.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -9,17 +10,17 @@ namespace dsf_eu_captcha.Pages;
 //[BindProperties]
 public class IndexModel : PageModel
 {
-    private readonly IHttpClientFactory _httpClientFactory;
+    //private readonly IHttpClientFactory _httpClientFactory;
     private readonly IConfiguration _configuration;
     private readonly ILogger<IndexModel> _logger;
 
     public IndexModel(IConfiguration configuration, 
-                        ILogger<IndexModel> logger, 
-                        IHttpClientFactory httpClientFactory)
+                        ILogger<IndexModel> logger) 
+                        //IHttpClientFactory httpClientFactory)
     {
         _configuration = configuration;
         _logger = logger;
-        _httpClientFactory = httpClientFactory;
+        //_httpClientFactory = httpClientFactory;
     }
 
     public CaptchaResponse? Captcha { get; set; }
@@ -37,8 +38,34 @@ public class IndexModel : PageModel
                 { HeaderNames.UserAgent, "PostmanRuntime/7.32.3" }
             }
         };
+        
+        //HttpClient Handler and Proxy setup (if needed)
+        HttpClientHandler httpClientHandler = new()
+        {
+            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+        };
 
-        var httpClient = _httpClientFactory.CreateClient();
+        try
+        {
+            string proxyUri = _configuration["Proxy:ProxyAddress"]!;
+            var proxy = new WebProxy
+            {
+                Address = new Uri(proxyUri),
+                BypassProxyOnLocal = false,
+                UseDefaultCredentials = false
+            };
+
+            bool proxyEnabled = Boolean.Parse(_configuration["Proxy:ProxyEnabled"]!);
+            if (proxyEnabled) httpClientHandler.Proxy = proxy;
+        }
+        catch
+        {
+
+        }
+
+        //var httpClient = _httpClientFactory.CreateClient();
+        HttpClient httpClient = new(httpClientHandler);
+        
         var httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
 
         if (httpResponseMessage != null)
@@ -111,15 +138,40 @@ public class IndexModel : PageModel
                 },
 
                 Content = new FormUrlEncodedContent(dict)
+            };            
+            
+            //HttpClient Handler and Proxy setup (if needed)
+            HttpClientHandler httpClientHandler = new()
+            {
+                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
             };
 
-            var httpClient = _httpClientFactory.CreateClient();        
+            try
+            {
+                string proxyUri = _configuration["Proxy:ProxyAddress"]!;
+                var proxy = new WebProxy
+                {
+                    Address = new Uri(proxyUri),
+                    BypassProxyOnLocal = false,
+                    UseDefaultCredentials = false
+                };
+
+                bool proxyEnabled = Boolean.Parse(_configuration["Proxy:ProxyEnabled"]!);
+                if (proxyEnabled) httpClientHandler.Proxy = proxy;
+            }
+            catch
+            {
+
+            }
+
+            //var httpClient = _httpClientFactory.CreateClient();
+            HttpClient httpClient = new(httpClientHandler);
+
             var httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
 
             if (httpResponseMessage.IsSuccessStatusCode)
             {
-                using var contentStream = await httpResponseMessage.Content.ReadAsStreamAsync();
-                
+                using var contentStream = await httpResponseMessage.Content.ReadAsStreamAsync();                
                 var res = await JsonSerializer.DeserializeAsync<CaptchaValidateResponse>(contentStream);
 
                 if (res != null)
@@ -128,7 +180,15 @@ public class IndexModel : PageModel
                     {
                         return RedirectToPage("Privacy");
                     }
+                    else
+                    {
+                        _logger.LogError($"Validation Response Error: ", res.responseCaptcha);
+                    }
                 }                
+            }
+            else
+            {
+                _logger.LogError($"Validation Response Error: ", httpResponseMessage.StatusCode);
             }
         }
         catch (Exception ex)
