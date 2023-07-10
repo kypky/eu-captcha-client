@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Text;
 using System.Text.Json;
 using dsf_eu_captcha.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -29,13 +30,17 @@ public class IndexModel : PageModel
 
     public async Task OnGet()
     {
+        //Remove any captcha sessions
+        HttpContext.Session.Remove("CaptchaId");
+        HttpContext.Session.Remove("JwtString");
+
         var requestUri = _configuration["Captcha:RequestUri"];
         var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, requestUri)
         {
             Headers =
             {
                 { HeaderNames.Accept, "*/*" },
-                { HeaderNames.UserAgent, "PostmanRuntime/7.32.3" }
+                { HeaderNames.UserAgent, HttpContext.Request.Headers["User-Agent"].ToString() }
             }
         };
         
@@ -72,25 +77,32 @@ public class IndexModel : PageModel
         {
             if (httpResponseMessage.IsSuccessStatusCode)
             {
-                using var contentStream =
-                    await httpResponseMessage.Content.ReadAsStreamAsync();
+                using var contentStream = await httpResponseMessage.Content.ReadAsStreamAsync();
                 
                 Captcha = await JsonSerializer.DeserializeAsync<CaptchaResponse>(contentStream);
 
-                //var captchaSession = HttpContext.Session.GetString("CAPTCHA");
-
-                //Get the x-jwtString value to be used for the validation request
-                if (httpResponseMessage.Headers.TryGetValues("x-jwtString", out IEnumerable<string>? values)) 
+                if (Captcha != null)
                 {
-                    //xjwtString = values.First();
-                    if (Captcha != null)
+                    //Get the x-jwtString value to be used for the validation request
+                    if (httpResponseMessage.Headers.TryGetValues("x-jwtString", out IEnumerable<string>? values)) 
                     {
                         Captcha.jwtString = values.First();
                         //captchaSession = new CaptchaResponse();
                         HttpContext.Session.SetString("CaptchaId", Captcha.captchaId);
-                        HttpContext.Session.SetString("JwtString", Captcha.jwtString);                    
-                    }                    
-                }                              
+                        HttpContext.Session.SetString("JwtString", Captcha.jwtString);  
+
+                        Console.WriteLine($"Get: Captcha.captchaId: {Captcha.captchaId}", Captcha.captchaId);
+                        Console.WriteLine($"Get: Captcha.jwtString: {Captcha.jwtString}", Captcha.jwtString);                                                
+                    }
+                    else
+                    {
+                        Console.WriteLine($"jwtString cannot be null or empty");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"Captcha cannot be null or empty");
+                }                                              
             }
         }        
     }
@@ -125,7 +137,7 @@ public class IndexModel : PageModel
             var dict = new Dictionary<string, string>
             {
                 { "captchaAnswer", captchaAnswer },
-                { "useAudio", useAudio! },
+                { "useAudio", "true" },
                 { "x-jwtString", string.IsNullOrEmpty(jwt)? "" : jwt }
             };
 
@@ -134,7 +146,8 @@ public class IndexModel : PageModel
                 Headers =
                 {
                     { HeaderNames.Accept, "*/*" },
-                    { HeaderNames.UserAgent, "PostmanRuntime/7.32.3" } //Needed for production env
+                    { HeaderNames.UserAgent, HttpContext.Request.Headers["User-Agent"].ToString() }
+                    //{ HeaderNames.UserAgent, "PostmanRuntime/7.32.3" } //Needed for production env
                 },
 
                 Content = new FormUrlEncodedContent(dict)
@@ -158,42 +171,63 @@ public class IndexModel : PageModel
 
                 bool proxyEnabled = Boolean.Parse(_configuration["Proxy:ProxyEnabled"]!);
                 if (proxyEnabled) httpClientHandler.Proxy = proxy;
+
+                Console.WriteLine($"proxyEnabled: {0}", proxyEnabled.ToString());
             }
             catch
             {
 
             }
+            
+            //Log Information
+            Console.WriteLine($"Post: captchaAnswer: {captchaAnswer}", captchaAnswer);
+            Console.WriteLine($"Post: x-jwtString: {jwt}", jwt);       
 
             //var httpClient = _httpClientFactory.CreateClient();
             HttpClient httpClient = new(httpClientHandler);
 
             var httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
-
+                    
             if (httpResponseMessage.IsSuccessStatusCode)
             {
-                using var contentStream = await httpResponseMessage.Content.ReadAsStreamAsync();                
-                var res = await JsonSerializer.DeserializeAsync<CaptchaValidateResponse>(contentStream);
+                using var contentStream = await httpResponseMessage.Content.ReadAsStreamAsync();    
+
+                StreamReader readStream = new(contentStream, Encoding.UTF8);
+                string contentString = readStream.ReadToEnd();
+                //Console.WriteLine($"contentString: {contentString}", contentString);
+
+                var res = JsonSerializer.Deserialize<CaptchaValidateResponse>(contentString)!.responseCaptcha;
+
+                try
+                {
+                    string jsonString = JsonSerializer.Serialize(res);
+                    Console.WriteLine($"res: {jsonString}", jsonString);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"res: {ex} exception", ex.ToString());
+                }
 
                 if (res != null)
                 {
-                    if (res.responseCaptcha == "success")
+                    if (res == "success")
                     {
                         return RedirectToPage("Privacy");
                     }
                     else
                     {
-                        _logger.LogError($"Validation Response Error: ", res.responseCaptcha);
+                        Console.WriteLine($"Validation Response Error: {res}", res);
                     }
                 }                
             }
             else
             {
-                _logger.LogError($"Validation Response Error: ", httpResponseMessage.StatusCode);
+                Console.WriteLine($"Validation Response Error: {httpResponseMessage.StatusCode}", httpResponseMessage.StatusCode);
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Exception: ", ex.ToString());
+            Console.WriteLine($"Exception: {ex}", ex.ToString());
         }        
 
         return Page();
