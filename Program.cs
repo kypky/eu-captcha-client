@@ -1,6 +1,12 @@
+using System.Net;
+using dsf_eu_captcha.Services;
 using Microsoft.Net.Http.Headers;
 
+
 var builder = WebApplication.CreateBuilder(args);
+
+//var configuration = builder.Configuration;
+
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 // Add services to the container.
@@ -11,11 +17,8 @@ builder.Services.AddSession();
 builder.Services.AddHttpClient();
 builder.Services.AddRazorPages();
 
-// builder.Services.AddHttpClient("EUCaptcha", httpClient =>
-// {       
-//     //httpClient.DefaultRequestHeaders.Add(HeaderNames.Accept, "*/*");
-//     //httpClient.DefaultRequestHeaders.Add(HeaderNames.UserAgent, "HttpRequestsSample");
-// });
+//Captcha HttpClient
+builder.Services.AddSingleton<ICaptchaHttpClient, CaptchaHttpClient>();
 
 var app = builder.Build();
 
