@@ -174,7 +174,7 @@ namespace dsf_eu_captcha.Services
             
             var content = new FormUrlEncodedContent(dict);            
 
-            string jsonReq = DictionaryToJson(dict);
+            //string jsonReq = DictionaryToJson(dict);
             //string jsonStringRequest = "{\"captchaAnswer\": \"" + captchaAnswer + "\",\"useAudio\": \"true\",\"x-jwtString\": \"" + jwt + "\"}";
             //StringContent postData = new(jsonStringRequest, Encoding.UTF8, "application/x-www-form-urlencoded");
             
@@ -187,7 +187,7 @@ namespace dsf_eu_captcha.Services
             Console.WriteLine($"captchaAnswer: " + captchaAnswer);
             Console.WriteLine($"x-jwtString: " + jwt);
             Console.WriteLine($"user-agent: " + userAgent);
-            //Console.WriteLine($"content: " + jsonReq);
+            //Console.WriteLine($"content: " + (string.IsNullOrEmpty(jsonReq)? "" : jsonReq));
                     
             if (httpResponseMessage.IsCompleted)
             {
