@@ -41,7 +41,7 @@ CAPTCHA Managed Service Implementation Manual is for the reference of developers
 git clone https://github.com/govcy/eu-captcha-client.git
 cd eu-captcha-client
 dotnet build .\dsf-eu-captcha.csproj
-dotnet run .\dsf-eu-captcha.csproj
+dotnet run .\dsf-eu-captcha.csproj --launch-profile "https"
 ```
 
 ### Deployment (Publish)

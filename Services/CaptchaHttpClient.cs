@@ -9,8 +9,8 @@ namespace dsf_eu_captcha.Services
 {
     public interface ICaptchaHttpClient
     {
-        Task<CaptchaResponse> GetRequest();
-        Task<CaptchaValidateResponse> PostRequest(string captchaAnswer, string jwt, string captchaId);
+        Task<CaptchaResponse> GetRequest(string userAgent);
+        Task<CaptchaValidateResponse> PostRequest(string captchaAnswer, string jwt, string captchaId, string userAgent);
     }
     public class CaptchaHttpClient : ICaptchaHttpClient
     {
@@ -22,7 +22,7 @@ namespace dsf_eu_captcha.Services
             //_logger = logger;
         }
 
-        public async Task<CaptchaResponse> GetRequest()
+        public async Task<CaptchaResponse> GetRequest(string userAgent)
         {
             CaptchaResponse? response = new();
 
@@ -55,14 +55,18 @@ namespace dsf_eu_captcha.Services
                 
                 HttpClient httpClient = new(httpClientHandler);
                 
-                httpClient.DefaultRequestHeaders.CacheControl = new System.Net.Http.Headers.CacheControlHeaderValue
-                {
-                    NoCache = true
-                };
+                // httpClient.DefaultRequestHeaders.CacheControl = new System.Net.Http.Headers.CacheControlHeaderValue
+                // {
+                //     NoCache = true
+                // };
 
+                httpClient.DefaultRequestHeaders.Clear();
                 httpClient.DefaultRequestHeaders.Add(HeaderNames.Accept, "*/*");
-                httpClient.DefaultRequestHeaders.Add(HeaderNames.UserAgent, "PostmanRuntime/7.32.3");
-
+                //httpClient.DefaultRequestHeaders.Add(HeaderNames.UserAgent, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0");
+                //httpClient.DefaultRequestHeaders.Add(HeaderNames.UserAgent, "PostmanRuntime/7.32.3");
+                httpClient.DefaultRequestHeaders.CacheControl = System.Net.Http.Headers.CacheControlHeaderValue.Parse("no-cache");                
+                httpClient.DefaultRequestHeaders.Add(HeaderNames.UserAgent, userAgent);
+                
                 Task<HttpResponseMessage> httpResponseMessage = httpClient.GetAsync(requestUri);
                 httpResponseMessage.Wait(TimeSpan.FromSeconds(10));
                 
@@ -115,7 +119,7 @@ namespace dsf_eu_captcha.Services
             return response!;
         }
 
-        public async Task<CaptchaValidateResponse> PostRequest(string captchaAnswer, string jwt, string captchaId)
+        public async Task<CaptchaValidateResponse> PostRequest(string captchaAnswer, string jwt, string captchaId, string userAgent)
         {
             CaptchaValidateResponse response = new();                        
 
@@ -146,30 +150,44 @@ namespace dsf_eu_captcha.Services
 
             HttpClient httpClient = new(httpClientHandler);
             
+            httpClient.DefaultRequestHeaders.Clear();
             httpClient.DefaultRequestHeaders.Add(HeaderNames.Accept, "*/*");
-            httpClient.DefaultRequestHeaders.Add(HeaderNames.UserAgent, "PostmanRuntime/7.32.3");            
+            //httpClient.DefaultRequestHeaders.Add(HeaderNames.UserAgent, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0");
+            //httpClient.DefaultRequestHeaders.Add(HeaderNames.UserAgent, "PostmanRuntime/7.32.3");
+            httpClient.DefaultRequestHeaders.CacheControl = System.Net.Http.Headers.CacheControlHeaderValue.Parse("no-cache");                
+            httpClient.DefaultRequestHeaders.Add(HeaderNames.UserAgent, userAgent);
 
-            httpClient.DefaultRequestHeaders.CacheControl = new System.Net.Http.Headers.CacheControlHeaderValue
-            {
-                NoCache = true
-            };
+
+            // httpClient.DefaultRequestHeaders.CacheControl = new System.Net.Http.Headers.CacheControlHeaderValue
+            // {
+            //     NoCache = true
+            // };
 
             var validationUri = _configuration["Captcha:ValidationUri"];
-            var useAudio = _configuration["Captcha:UseAudio"]!;
+            //var useAudio = _configuration["Captcha:UseAudio"]!;
             var dict = new Dictionary<string, string>
             {
                 { "captchaAnswer", captchaAnswer },
-                { "useAudio", useAudio },
+                { "useAudio", "true" },
                 { "x-jwtString", string.IsNullOrEmpty(jwt)? "" : jwt }
             };
+            
+            var content = new FormUrlEncodedContent(dict);            
 
-            var content = new FormUrlEncodedContent(dict);
+            string jsonReq = DictionaryToJson(dict);
+            //string jsonStringRequest = "{\"captchaAnswer\": \"" + captchaAnswer + "\",\"useAudio\": \"true\",\"x-jwtString\": \"" + jwt + "\"}";
+            //StringContent postData = new(jsonStringRequest, Encoding.UTF8, "application/x-www-form-urlencoded");
+            
 
             Task<HttpResponseMessage> httpResponseMessage = httpClient.PostAsync(validationUri + "/" + captchaId, content);
+            //Task<HttpResponseMessage> httpResponseMessage = httpClient.PostAsync(request);
             httpResponseMessage.Wait(TimeSpan.FromSeconds(10));
 
             Console.WriteLine($"captchaId: " + captchaId);
             Console.WriteLine($"captchaAnswer: " + captchaAnswer);
+            Console.WriteLine($"x-jwtString: " + jwt);
+            Console.WriteLine($"user-agent: " + userAgent);
+            //Console.WriteLine($"content: " + jsonReq);
                     
             if (httpResponseMessage.IsCompleted)
             {
@@ -191,6 +209,13 @@ namespace dsf_eu_captcha.Services
             }
 
             return response;        
+        }
+
+        private static string DictionaryToJson(Dictionary<string, string> dict)
+        {
+            var entries = dict.Select(d =>
+                string.Format("\"{0}\": \"{1}\"", d.Key, string.Join(",", d.Value)));
+            return "{" + string.Join(",", entries) + "}";
         }
     }
 }

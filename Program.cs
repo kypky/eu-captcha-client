@@ -1,5 +1,6 @@
 using System.Net;
 using dsf_eu_captcha.Services;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Net.Http.Headers;
 
 
@@ -17,10 +18,18 @@ builder.Services.AddSession();
 builder.Services.AddHttpClient();
 builder.Services.AddRazorPages();
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+});
+
 //Captcha HttpClient
 builder.Services.AddSingleton<ICaptchaHttpClient, CaptchaHttpClient>();
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

@@ -32,11 +32,16 @@ public class IndexModel : PageModel
     {
         Console.WriteLine("In IndexModel GET");
         //Remove any captcha sessions
-        HttpContext.Session.Remove("CaptchaId");
-        HttpContext.Session.Remove("JwtString");
-                    
+        //HttpContext.Session.Remove("CaptchaId");
+        //HttpContext.Session.Remove("JwtString");
+
+        HttpContext.Session.SetString("CaptchaId", string.Empty);
+        HttpContext.Session.SetString("JwtString", string.Empty);
+
+        var userAgent = Request.Headers["User-Agent"].ToString();
+
         //Captcha = await JsonSerializer.DeserializeAsync<CaptchaResponse>(contentStream);
-        var res = _captchaHttpClient.GetRequest().Result;
+        var res = _captchaHttpClient.GetRequest(userAgent).Result;
 
         if (res != null)
         {
@@ -50,7 +55,7 @@ public class IndexModel : PageModel
         }
         else
         {
-            Console.WriteLine($"jwtString cannot be null or empty");
+            Console.WriteLine($"GetRequest response cannot be null or empty");
         }                                                                      
     }
     
@@ -63,9 +68,11 @@ public class IndexModel : PageModel
             var captchaId = HttpContext.Session.GetString("CaptchaId");
             var jwt = HttpContext.Session.GetString("JwtString");
             
-            //HttpContext.Session.Remove("CaptchaId");
-            //HttpContext.Session.Remove("JwtString");
+            //Reset the sessions
+            HttpContext.Session.SetString("CaptchaId", string.Empty);
+            HttpContext.Session.SetString("JwtString", string.Empty);
 
+            var userAgent = Request.Headers["User-Agent"].ToString();
             if (string.IsNullOrEmpty(captchaAnswer))
             {
                 throw new ArgumentException($"captchaAnswer cannot be null or empty.");
@@ -84,7 +91,7 @@ public class IndexModel : PageModel
                 //_logger.LogError($"'{nameof(captchaId)}' cannot be null or empty.", nameof(captchaId));
             }                
 
-            var res = _captchaHttpClient.PostRequest(captchaAnswer, jwt!, captchaId!).Result;
+            var res = _captchaHttpClient.PostRequest(captchaAnswer, jwt!, captchaId!, userAgent).Result;
                     
             if (res != null)
             {                
