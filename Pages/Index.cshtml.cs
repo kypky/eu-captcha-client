@@ -10,19 +10,21 @@ using dsf_eu_captcha.Services;
 namespace dsf_eu_captcha.Pages;
 
 //[BindProperties]
-//[ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+[ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
 public class IndexModel : PageModel
 {
     //private readonly IHttpClientFactory _httpClientFactory;
-    //private readonly IConfiguration _configuration;
+    private readonly IConfiguration _configuration;
     //private readonly ILogger<IndexModel> _logger;
     private readonly ICaptchaHttpClient _captchaHttpClient;
 
-    public IndexModel(ICaptchaHttpClient captchaHttpClient)
+    public IndexModel(ICaptchaHttpClient captchaHttpClient, IConfiguration configuration)
     {
         //_configuration = configuration;
         //_logger = logger;
         _captchaHttpClient = captchaHttpClient;
+        _configuration = configuration;
+
     }
 
     public CaptchaResponse? Captcha { get; set; }    
@@ -38,10 +40,20 @@ public class IndexModel : PageModel
         HttpContext.Session.SetString("CaptchaId", string.Empty);
         HttpContext.Session.SetString("JwtString", string.Empty);
 
+        // //Get Random User Agent to test inconsistent responses from managed service
+        // Random rand = new();
+        // var userAgentList = _configuration.GetSection("UserAgents").Get<List<string>>();
+        // int index = rand.Next(userAgentList!.Count);                
+        
         var userAgent = Request.Headers["User-Agent"].ToString();
+        //var userAgent = userAgentList[index].ToString();
+        //HttpContext.Session.SetString("UserAgent",userAgent);
 
         //Captcha = await JsonSerializer.DeserializeAsync<CaptchaResponse>(contentStream);
         var res = _captchaHttpClient.GetRequest(userAgent).Result;
+
+        //Random User Agent to test inconsistent responses
+
 
         if (res != null)
         {
@@ -73,6 +85,10 @@ public class IndexModel : PageModel
             HttpContext.Session.SetString("JwtString", string.Empty);
 
             var userAgent = Request.Headers["User-Agent"].ToString();
+            //var userAgent = HttpContext.Session.GetString("UserAgent");
+            //HttpContext.Session.SetString("UserAgent", string.Empty);
+
+
             if (string.IsNullOrEmpty(captchaAnswer))
             {
                 throw new ArgumentException($"captchaAnswer cannot be null or empty.");
@@ -91,7 +107,7 @@ public class IndexModel : PageModel
                 //_logger.LogError($"'{nameof(captchaId)}' cannot be null or empty.", nameof(captchaId));
             }                
 
-            var res = _captchaHttpClient.PostRequest(captchaAnswer, jwt!, captchaId!, userAgent).Result;
+            var res = _captchaHttpClient.PostRequest(captchaAnswer, jwt!, captchaId!, userAgent!).Result;
                     
             if (res != null)
             {                

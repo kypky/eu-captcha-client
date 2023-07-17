@@ -172,14 +172,24 @@ namespace dsf_eu_captcha.Services
                 { "x-jwtString", string.IsNullOrEmpty(jwt)? "" : jwt }
             };
             
-            var content = new FormUrlEncodedContent(dict);            
+            //var content = new FormUrlEncodedContent(dict);            
+
+            string requestContent = "";
+            foreach(var param in dict) {
+                if (requestContent.Length > 0) { requestContent += "&"; }
+                //requestContent += param.Key + "=" + WebUtility.UrlEncode(param.Value);
+                requestContent += param.Key + "=" + param.Value;
+            }   
+            
+            var stringContent = new StringContent(requestContent, Encoding.UTF8, "application/x-www-form-urlencoded");
+            Console.WriteLine(stringContent.ReadAsStringAsync().Result);
 
             //string jsonReq = DictionaryToJson(dict);
             //string jsonStringRequest = "{\"captchaAnswer\": \"" + captchaAnswer + "\",\"useAudio\": \"true\",\"x-jwtString\": \"" + jwt + "\"}";
             //StringContent postData = new(jsonStringRequest, Encoding.UTF8, "application/x-www-form-urlencoded");
             
 
-            Task<HttpResponseMessage> httpResponseMessage = httpClient.PostAsync(validationUri + "/" + captchaId, content);
+            Task<HttpResponseMessage> httpResponseMessage = httpClient.PostAsync(validationUri + "/" + captchaId, stringContent);
             //Task<HttpResponseMessage> httpResponseMessage = httpClient.PostAsync(request);
             httpResponseMessage.Wait(TimeSpan.FromSeconds(10));
 
@@ -211,11 +221,11 @@ namespace dsf_eu_captcha.Services
             return response;        
         }
 
-        private static string DictionaryToJson(Dictionary<string, string> dict)
-        {
-            var entries = dict.Select(d =>
-                string.Format("\"{0}\": \"{1}\"", d.Key, string.Join(",", d.Value)));
-            return "{" + string.Join(",", entries) + "}";
-        }
+        // private static string DictionaryToJson(Dictionary<string, string> dict)
+        // {
+        //     var entries = dict.Select(d =>
+        //         string.Format("\"{0}\": \"{1}\"", d.Key, string.Join(",", d.Value)));
+        //     return "{" + string.Join(",", entries) + "}";
+        // }
     }
 }

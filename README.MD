@@ -77,6 +77,10 @@ Proxy Support:
     "ProxyAddress": "http://proxy.intranet.gov.cy:80"
   }
 ```
+## Issues and Considerations
+* Issue: Inconsistent Responses
+* Limited Maintenance/Support
+* Limited Technical Documentation (Rate limits, development environment limits, known issues, etc)
 
 ## Tech
 * .NET 7 C#
