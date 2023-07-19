@@ -80,7 +80,8 @@ Proxy Support:
 ## Issues and Considerations
 * Issue: Inconsistent Responses
 * Limited Maintenance/Support
-* Limited Technical Documentation (Rate limits, development environment limits, known issues, etc)
+* Limited Technical Documentation (Rate limits, development environment limitations, known issues, etc)
+* No detailed error messages (only success or fail as a response) 
 
 ## Tech
 * .NET 7 C#
